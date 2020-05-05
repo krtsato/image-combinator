@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
-	"image/png"
+	"image/jpeg"
 	"log"
 	"os"
 )
@@ -112,13 +112,14 @@ func concatImages(paths []string) error {
 
 	outImg := createConcatImage(imgs)
 
-	out, err := os.Create("assets/output/out.png")
+	out, err := os.Create("assets/output/out.jpg")
 	if err != nil {
 		return err
 	}
 	defer out.Close()
 
-	if err := png.Encode(out, outImg); err != nil {
+	jpegQuality := &jpeg.Options{Quality: 100}
+	if err := jpeg.Encode(out, outImg, jpegQuality); err != nil {
 		return err
 	}
 
@@ -127,7 +128,7 @@ func concatImages(paths []string) error {
 
 func main() {
 	// input images file path
-	paths := []string{"assets/input/test-img1.png", "assets/input/test-img2.png"}
+	paths := []string{"assets/input/test-img1.jpg", "assets/input/test-img2.jpg"}
 	if err := concatImages(paths); err != nil {
 		log.Fatalln(err)
 	}
