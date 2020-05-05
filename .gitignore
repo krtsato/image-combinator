@@ -1,0 +1,5 @@
+/assets/input/*
+!/assets/input/.keep
+/assets/output/*
+!/assets/output/.keep
+/.markdownlint.yml
