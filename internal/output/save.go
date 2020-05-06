@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func SaveImage(outImg *image.RGBA) error { 
+func Save(outImg *image.RGBA) error { 
 	// 出力パスの指定
 	unixTime := strconv.FormatInt(time.Now().Unix(), 10)
 	extension := ".jpg"

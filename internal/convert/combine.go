@@ -7,10 +7,10 @@ import (
 	"image/draw"
 )
 
-func CombineImages(imgs input.Images) *image.RGBA {
+func Combine(imgs input.Images) *image.RGBA {
 	// 背景画像の作成
-	outImgWidth := calc.GetMaxWidth(imgs)
-	outImgHeight := calc.GetSumHeight(imgs)
+	outImgWidth := calc.MaxWidth(imgs)
+	outImgHeight := calc.SumHeight(imgs)
 	outImg := image.NewRGBA(image.Rect(0, 0, outImgWidth, outImgHeight))
 
 	// 背景画像への書き込み

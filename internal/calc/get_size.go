@@ -4,7 +4,7 @@ import (
 	"image-combinator/internal/input"
 )
 
-func GetMaxWidth(imgs input.Images) int {
+func MaxWidth(imgs input.Images) int {
 	var result int
 	for _, img := range imgs {
 		if result < img.Width {
@@ -15,7 +15,7 @@ func GetMaxWidth(imgs input.Images) int {
 	return result
 }
 
-func GetSumHeight(imgs input.Images) int {
+func SumHeight(imgs input.Images) int {
 	var result int
 	for _, img := range imgs {
 		result += img.Height

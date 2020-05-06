@@ -26,10 +26,10 @@ func integrateImages(paths []string) error {
 	}
 
 	// 加工
-	outImg := convert.CombineImages(imgs)
+	outImg := convert.Combine(imgs)
 
 	// 出力
-	err := output.SaveImage(outImg)
+	err := output.Save(outImg)
 	if err != nil {
 		return err
 	}
