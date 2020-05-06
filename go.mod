@@ -1,3 +1,3 @@
-module github.com/krtsato/image-combinator
+module image-combinator
 
 go 1.14
