@@ -26,10 +26,10 @@ func integrateImages() error {
 	}
 
 	// 加工
-	outImg := convert.Combine(imgs)
+	screen := convert.Combine(imgs)
 
 	// 出力
-	if err := output.Save(outImg); err != nil {
+	if err := output.Save(screen); err != nil {
 		return err
 	}
 

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Save(outImg *image.RGBA) error { 
+func Save(screen *image.RGBA) error {
 	// 出力パスの指定
 	unixTime := strconv.FormatInt(time.Now().Unix(), 10)
 	extension := ".jpg"
@@ -23,7 +23,7 @@ func Save(outImg *image.RGBA) error {
 	defer file.Close()
 
 	jpegQuality := &jpeg.Options{Quality: 100}
-	if err := jpeg.Encode(file, outImg, jpegQuality); err != nil {
+	if err := jpeg.Encode(file, screen, jpegQuality); err != nil {
 		return err
 	}
 
