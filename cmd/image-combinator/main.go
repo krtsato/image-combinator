@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"image-combinator/internal/convert"
 	"image-combinator/internal/input"
 	"image-combinator/internal/output"
 	"log"
 )
 
-func integrateImages(paths []string) error {
-	// 入力画像は２枚以上
-	if len(paths) < 2 {
-		return fmt.Errorf("Error: need two or more images")
+func integrateImages() error {
+	// 全入力画像のパスを取得
+	paths, err := input.GetPaths("assets/input/")
+	if err != nil {
+		return err
 	}
 
-	// 全入力画像を配列に格納
+	// 全入力画像の情報を格納
 	var imgs input.Images
 	for _, path := range paths {
 		img, err := input.InitImage(path)
@@ -29,8 +29,7 @@ func integrateImages(paths []string) error {
 	outImg := convert.Combine(imgs)
 
 	// 出力
-	err := output.Save(outImg)
-	if err != nil {
+	if err := output.Save(outImg); err != nil {
 		return err
 	}
 
@@ -38,9 +37,7 @@ func integrateImages(paths []string) error {
 }
 
 func main() {
-	paths := input.GetPaths()
-	err := integrateImages(paths)
-	if err != nil {
+	if err := integrateImages(); err != nil {
 		log.Fatalln(err)
 	}
 }
