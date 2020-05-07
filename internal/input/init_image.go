@@ -1,7 +1,9 @@
 package input
 
 import (
+	"bytes"
 	"image"
+	"image/jpeg"
 	"os"
 )
 
@@ -24,7 +26,7 @@ func getImage(file *os.File) (image.Image, error) {
 }
 
 // 画像サイズの読み込み
-func getImageConfig(file *os.File) (image.Config, error) {
+func getImageConfig(file *bytes.Buffer) (image.Config, error) {
 	config, _, err := image.DecodeConfig(file)
 	if err != nil {
 		return image.Config{}, err
@@ -46,7 +48,14 @@ func InitImage(path string) (Image, error) {
 		return Image{}, err
 	}
 
-	config, err := getImageConfig(file)
+	// config を取得するため buf を用意する
+	// decode 後の file を使い回すと unknown format になる
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, nil); err != nil {
+		return Image{}, err
+	}
+
+	config, err := getImageConfig(buf)
 	if err != nil {
 		return Image{}, err
 	}

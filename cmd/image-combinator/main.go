@@ -9,7 +9,7 @@ import (
 
 func integrateImages() error {
 	// 全入力画像のパスを取得
-	paths, err := input.GetPaths("assets/input/")
+	paths, err := input.GetPaths("assets/input/*.jpg")
 	if err != nil {
 		return err
 	}
@@ -37,6 +37,10 @@ func integrateImages() error {
 }
 
 func main() {
+	// コマンドオプションを読み込む
+	input.CliFlagParse()
+
+	// 画像処理
 	if err := integrateImages(); err != nil {
 		log.Fatalln(err)
 	}
