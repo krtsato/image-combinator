@@ -1,6 +1,6 @@
 # image-combinator
 
-複数の画像を連結して 1 枚の画像を生成するプログラム
+複数の画像を連結して 1 枚の画像を生成するプログラム  
 Twitter と YouTube の画面に最適化している  
 大量の画像があるとき編集作業を自動化する
 
@@ -21,7 +21,38 @@ Twitter と YouTube の画面に最適化している
 
 - 入力画像１枚は正方形である
 - 入力画像は jpeg 形式である
-- 入力画像の整形は今後対応
+- 入力画像は assets/input に配置する
+- 出力画像は assets/output に生成される
+- 入出力画像の整形は今後対応
+
+<br>
+
+## 実行
+
+対話入力
+
+```zsh
+% go run cmd/image-combinator/main.go
+
+Enter the platform where you will submit images. [twitter / youtube]
+twitter # ⏎
+
+Enter the usecase of output images. [post / header]
+post # ⏎
+```
+
+フラグ指定
+
+```zsh
+% go run cmd/image-combinator/main.go -p youtube -u thumbnail
+```
+
+## コマンドオプション
+
+| オプション | オプションの意味                            | オプションのパラメータ                                |
+| ---------- | ------------------------------------------- | ----------------------------------------------------- |
+| -p         | platform を指定する                         | twitter, youtube                                      |
+| -u         | usecase を指定する<br>platform ごとに異なる | twitter : post, header<br>youtube : screen, thumbnail |
 
 <br>
 
@@ -52,11 +83,11 @@ Twitter と YouTube の画面に最適化している
 ## 出力画像パターン
 
 - 3 : 1
-  - 画像素材 3 * 1 枚，padding なし
-  - 画像素材 15 * 5 枚，padding なし
+  - 画像素材 3 \* 1 枚，padding なし
+  - 画像素材 15 \* 5 枚，padding なし
 - 16 : 9
-  - 画像素材 5 * 2 枚，padding あり
-  - 画像素材 16 * 9 枚，padding なし
+  - 画像素材 5 \* 2 枚，padding あり
+  - 画像素材 16 \* 9 枚，padding なし
 
 <br>
 
