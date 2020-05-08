@@ -93,14 +93,14 @@ func askPlatform() {
 		platformArr = append(platformArr, k)
 	}
 	platform := strings.Join(platformArr, " / ")
-	fmt.Println("Enter the platform name where you will submit images. [" + platform + "]")
+	fmt.Println("\nEnter the platform where you will submit images. [" + platform + "]")
 }
 
 // 対話型 CLI で usecase の入力を求める
 func askUsecase(platform string) {
 	usecaseArr := patternMap[platform]
 	usecase := strings.Join(usecaseArr, " / ")
-	fmt.Println("Enter the usecase of output images. [" + usecase + "]")
+	fmt.Println("\nEnter the usecase of output images. [" + usecase + "]")
 }
 
 func GetCliOptions() (CliOption, error) {
