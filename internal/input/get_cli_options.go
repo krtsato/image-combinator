@@ -65,7 +65,7 @@ func getPlatform() (string, error) {
 		return inputText, nil
 	}
 
-	return "", errors.New("Error: \"" + inputText + "\" is not register with this application.")
+	return "", errors.New("Error: \"" + inputText + "\" is not registered with this application.")
 }
 
 // 対話型 CLI で usecase 文字列を取得する
