@@ -10,9 +10,16 @@ import (
 	"strings"
 )
 
+// 出力画像のサイズを切り替える
 type CliOption struct {
 	Platform string // 画像の投稿先
 	Usecase  string // 画像の用途
+}
+
+// 関数 keyExists のデフォルト引数を空文字にする
+type keyExistsArgs struct {
+	platform string
+	usecase  string
 }
 
 // 対話型 CLI を使う場合に参照するマップ
@@ -28,69 +35,54 @@ var patternMap = map[string]map[string][]int{
 	},
 }
 
-// platform の登録を確認する
-func platformExists(platform string) bool {
-	_, exist := patternMap[platform]
-	return exist
-}
-
-// usecase の登録を確認する
-func usecaseExists(platform string, usecase string) bool {
-	exist := false
-	usecaseArr := patternMap[platform]
-	for _, v := range usecaseArr {
-		if usecase == v {
-			exist = true
-			break
-		}
+// platform や usecase の登録を確認する
+func keyExists(args keyExistsArgs) bool {
+	platform := args.platform
+	if platform == "" {
+		return false
 	}
-	return exist
+
+	if args.usecase == "" {
+		_, exists := patternMap[platform]
+		return exists
+	}
+
+	_, exists := patternMap[platform][args.usecase]
+	return exists
 }
 
 // 対話型 CLI で platform 文字列を取得する
 func getPlatform() (string, error) {
-	var platform string
-	var err error
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
-	inputText := strings.ToLower(scanner.Text())
-
-	// platform の登録を確認する
-	if platformExists(inputText) {
-		platform = inputText
-	} else {
-		err = errors.New("Error: \"" + inputText + "\" is not register with this application.")
-	}
-
-	// スキャンエラーに対応する
 	if err := scanner.Err(); err != nil {
 		return "", err
 	}
 
-	return platform, err
+	// platform の登録を確認する
+	inputText := strings.ToLower(scanner.Text())
+	if keyExists(keyExistsArgs{platform: inputText}) {
+		return inputText, nil
+	}
+
+	return "", errors.New("Error: \"" + inputText + "\" is not register with this application.")
 }
 
 // 対話型 CLI で usecase 文字列を取得する
 func getUsecase(platform string) (string, error) {
-	var usecase string
-	var err error
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
-	inputText := strings.ToLower(scanner.Text())
-
-	// usecase の登録を確認する
-	if usecaseExists(platform, inputText) {
-		usecase = inputText
-	} else {
-		err = errors.New("Error: \"" + inputText + "\" is not registered with this application.")
-	}
-
-	// スキャンエラーに対応する
 	if err := scanner.Err(); err != nil {
 		return "", err
 	}
 
-	return usecase, err
+	// usecase の登録を確認する
+	inputText := strings.ToLower(scanner.Text())
+	if keyExists(keyExistsArgs{platform: platform, usecase: inputText}) {
+		return inputText, nil
+	}
+
+	return "", errors.New("Error: \"" + inputText + "\" is not registered with this application.")
 }
 
 // マップの key 一覧を文字列で返す
@@ -144,7 +136,7 @@ func GetCliOptions() (CliOption, error) {
 	// フラグが不正・未指定の場合
 	// 対話型 CLI に切り替える
 	// 標準入力から platform を取得する
-	if !platformExists(*pFlag) {
+	if !keyExists(keyExistsArgs{platform: *pFlag}) {
 		if err := askPlatform(); err != nil {
 			return CliOption{}, err
 		}
@@ -159,7 +151,7 @@ func GetCliOptions() (CliOption, error) {
 	// フラグが不正・未指定の場合
 	// 標準入力から usecase を取得する
 	// platform に応じて usecase が替わる
-	if !usecaseExists(*pFlag, *uFlag) {
+	if keyExists(keyExistsArgs{platform: *pFlag, usecase: *uFlag}) {
 		if err := askUsecase(*pFlag); err != nil {
 			return CliOption{}, err
 		}
