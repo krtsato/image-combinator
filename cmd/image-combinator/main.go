@@ -10,12 +10,12 @@ import (
 
 func integrateImages() error {
 	// コマンドオプションを読み込む
-	cliOption, err := input.GetCliOptions()
+	cliOptions, err := input.GetCliOptions()
 	if err != nil {
 		return err
 	}
-	fmt.Println("platform : " + cliOption.Platform)
-	fmt.Println("usecase : " + cliOption.Usecase)
+	fmt.Println("platform : " + cliOptions.Platform)
+	fmt.Println("usecase : " + cliOptions.Usecase)
 
 	// 全入力画像のパスを取得
 	paths, err := input.GetPaths("assets/input/*.jpg")

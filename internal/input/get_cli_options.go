@@ -11,15 +11,9 @@ import (
 )
 
 // 出力画像のサイズを切り替える
-type CliOption struct {
+type CliOptions struct {
 	Platform string // 画像の投稿先
 	Usecase  string // 画像の用途
-}
-
-// 関数 keyExists のデフォルト引数を空文字にする
-type keyExistsArgs struct {
-	platform string
-	usecase  string
 }
 
 // 対話型 CLI を使う場合に参照するマップ
@@ -36,18 +30,19 @@ var patternMap = map[string]map[string][]int{
 }
 
 // platform や usecase の登録を確認する
-func keyExists(args keyExistsArgs) bool {
-	platform := args.platform
+func mapKeyExists(options CliOptions) bool {
+	platform := options.Platform
+	usecase := options.Usecase
 	if platform == "" {
 		return false
 	}
 
-	if args.usecase == "" {
+	if usecase == "" {
 		_, exists := patternMap[platform]
 		return exists
 	}
 
-	_, exists := patternMap[platform][args.usecase]
+	_, exists := patternMap[platform][usecase]
 	return exists
 }
 
@@ -61,7 +56,7 @@ func getPlatform() (string, error) {
 
 	// platform の登録を確認する
 	inputText := strings.ToLower(scanner.Text())
-	if keyExists(keyExistsArgs{platform: inputText}) {
+	if mapKeyExists(CliOptions{Platform: inputText}) {
 		return inputText, nil
 	}
 
@@ -78,7 +73,7 @@ func getUsecase(platform string) (string, error) {
 
 	// usecase の登録を確認する
 	inputText := strings.ToLower(scanner.Text())
-	if keyExists(keyExistsArgs{platform: platform, usecase: inputText}) {
+	if mapKeyExists(CliOptions{Platform: platform, Usecase: inputText}) {
 		return inputText, nil
 	}
 
@@ -102,28 +97,31 @@ func getMapKeys(rawMap interface{}) (string, error) {
 	return rawKeys, nil
 }
 
-// 対話型 CLI で platform の入力を求める
-func askPlatform() error {
-	mapKeys, err := getMapKeys(patternMap)
-	if err != nil {
-		return err
+// 対話型 CLI で platform や usecase の入力を求める
+func askMapKey(platform ...string) error {
+	var mapKeys string
+	var askedOption string
+	if len(platform) == 0 {
+		platformKeys, err := getMapKeys(patternMap)
+		if err != nil {
+			return err
+		}
+		mapKeys = platformKeys
+		askedOption = "platform"
+	} else {
+		usecaseKeys, err := getMapKeys(patternMap[platform[0]])
+		if err != nil {
+			return err
+		}
+		mapKeys = usecaseKeys
+		askedOption = "usecase"
 	}
-	fmt.Println("\nEnter the platform where you will submit images. [" + mapKeys + "]")
+
+	fmt.Println("\nEnter the " + askedOption + " of output images. [" + mapKeys + "]")
 	return nil
 }
 
-// 対話型 CLI で usecase の入力を求める
-func askUsecase(platform string) error {
-	usecaseMap := patternMap[platform]
-	mapKeys, err := getMapKeys(usecaseMap)
-	if err != nil {
-		return err
-	}
-	fmt.Println("\nEnter the usecase of output images. [" + mapKeys + "]")
-	return nil
-}
-
-func GetCliOptions() (CliOption, error) {
+func GetCliOptions() (CliOptions, error) {
 	// CLI フラグで直接指定する場合
 	// デフォルトはフラグ未指定
 	var pFlag = flag.String("p", "", `The platform you want to post a image
@@ -136,14 +134,14 @@ func GetCliOptions() (CliOption, error) {
 	// フラグが不正・未指定の場合
 	// 対話型 CLI に切り替える
 	// 標準入力から platform を取得する
-	if !keyExists(keyExistsArgs{platform: *pFlag}) {
-		if err := askPlatform(); err != nil {
-			return CliOption{}, err
+	if !mapKeyExists(CliOptions{Platform: *pFlag}) {
+		if err := askMapKey(); err != nil {
+			return CliOptions{}, err
 		}
 
 		platform, err := getPlatform()
 		if err != nil {
-			return CliOption{}, err
+			return CliOptions{}, err
 		}
 		*pFlag = platform
 	}
@@ -151,17 +149,17 @@ func GetCliOptions() (CliOption, error) {
 	// フラグが不正・未指定の場合
 	// 標準入力から usecase を取得する
 	// platform に応じて usecase が替わる
-	if keyExists(keyExistsArgs{platform: *pFlag, usecase: *uFlag}) {
-		if err := askUsecase(*pFlag); err != nil {
-			return CliOption{}, err
+	if !mapKeyExists(CliOptions{Platform: *pFlag, Usecase: *uFlag}) {
+		if err := askMapKey(*pFlag); err != nil {
+			return CliOptions{}, err
 		}
 
 		usecase, err := getUsecase(*pFlag)
 		if err != nil {
-			return CliOption{}, err
+			return CliOptions{}, err
 		}
 		*uFlag = usecase
 	}
 
-	return CliOption{*pFlag, *uFlag}, nil
+	return CliOptions{Platform: *pFlag, Usecase: *uFlag}, nil
 }
