@@ -10,13 +10,14 @@ import (
 	"strings"
 )
 
-// 出力画像のサイズを切り替える
+// コマンドオプション・フラグ指定によって
+// フィールド値を更新する
 type CliOptions struct {
-	Platform string // 画像の投稿先
-	Usecase  string // 画像の用途
+	Platform string // 出力画像の投稿先
+	Usecase  string // 出力画像の用途
 }
 
-// 対話型 CLI を使う場合に参照するマップ
+// オプションの有効値を格納したマップ
 // platform : usecase : [width, height]
 var patternMap = map[string]map[string][]int{
 	"twitter": {
@@ -29,11 +30,13 @@ var patternMap = map[string]map[string][]int{
 	},
 }
 
-// platform や usecase の登録を確認する
+// platform や usecase の有効確認をする
+// (true, true), (true, false), (false, false) の３通り
 func mapKeysExist(options *CliOptions) (bool, bool) {
 	platform := options.Platform
 	usecaseExists := false
 
+	// platform が適値である場合に限り usecase の検証を行う
 	_, platformExists := patternMap[platform]
 	if platformExists {
 		_, uExists := patternMap[platform][options.Usecase]
@@ -42,6 +45,8 @@ func mapKeysExist(options *CliOptions) (bool, bool) {
 	return platformExists, usecaseExists
 }
 
+// platform や usecase を決めるマップから key の一覧を文字列で取得する
+// e.g. "twitter / youtube"
 func getMapKeys(rawMap interface{}) (string, error) {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
@@ -60,6 +65,7 @@ func getMapKeys(rawMap interface{}) (string, error) {
 }
 
 // 対話型 CLI で platform や usecase の入力を求める
+// 各マップの key 一覧を選択肢として提示する
 func askMapKey(rawMap interface{}) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
@@ -83,7 +89,8 @@ func askMapKey(rawMap interface{}) error {
 	return nil
 }
 
-// 対話型 CLI で platform 文字列を更新する
+// 対話型 CLI で Platform や Usecase の文字列を更新する
+// ポインタ型を更新するため戻り値は error のみ
 func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
@@ -96,6 +103,7 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 		return err
 	}
 
+	// 入力文字列が key となるマップが存在する場合
 	inputText := strings.ToLower(scanner.Text())
 	refKey := reflect.ValueOf(inputText)
 	refVal := refMap.MapIndex(refKey)
@@ -115,9 +123,11 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	return errors.New("Error: \"" + inputText + "\" is not registered with this application.")
 }
 
-func GetCliOptions() (CliOptions, error) {
-	// CLI フラグで直接指定する場合
-	// デフォルトはフラグ未指定
+// ポインタ型の *cliOptions を適値で初期化する
+// フラグ指定を受けた上で，不足分のオプションを対話型 CLI で補う
+func InitCliOptions() (CliOptions, error) {
+	// platform と usecase のフラグを用意する
+	// デフォルトではフラグを指定しない
 	var pFlag = flag.String("p", "", `The platform you want to post a image
 	Assign "twitter" or "youtube".`)
 	var uFlag = flag.String("u", "", `The usecase in your choosing platform
@@ -126,21 +136,21 @@ func GetCliOptions() (CliOptions, error) {
 	flag.Parse()
 	cliOptions := &CliOptions{Platform: *pFlag, Usecase: *uFlag}
 
-	// フラグが不正・未指定の場合
-	// 対話型 CLI に切り替える
+	// フラグで適値を指定した場合は完了
 	pExists, uExists := mapKeysExist(cliOptions)
 	if pExists && uExists {
 		return *cliOptions, nil
 	}
 
-	// platform は登録済みかつ，usecase が不正・未指定の場合
+	// フラグが不正・未指定の場合は対話型 CLI に切り替える
+	// platform が適値かつ usecase は不正・未指定の場合
 	if pExists && !uExists {
 		// usecase の入力を求める
 		if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
 			return CliOptions{}, err
 		}
 
-		// update
+		// usecase が更新できたら完了
 		if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
 			return CliOptions{}, err
 		}
@@ -149,31 +159,33 @@ func GetCliOptions() (CliOptions, error) {
 	}
 
 	// platform が不正・未指定の場合
-	// ask
+	// platform の入力を求める
 	if err := askMapKey(patternMap); err != nil {
 		return CliOptions{}, err
 	}
 
-	// update
+	// platform を更新する
+	// 今後の処理では platform が適値であることが保証される
 	if err := updateCliOptions(patternMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
-	// usecase が登録されていた場合
+	// フラグで予め指定した usecase が適値だった場合
+	// platform と usecase が共に適値であるため完了
 	if pExists, uExists := mapKeysExist(cliOptions); pExists && uExists {
 		return *cliOptions, nil
 	}
 
-	// usecase が登録されていない場合
+	// フラグで予め指定した usecase が不正・未指定だった場合
+	// usecase の入力を求める
 	if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
 		return CliOptions{}, err
 	}
 
-	// update
+	// usecase が更新できたら完了
 	if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
-	// 最終的に適値で更新された場合
 	return *cliOptions, nil
 }

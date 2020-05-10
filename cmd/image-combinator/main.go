@@ -10,7 +10,7 @@ import (
 
 func integrateImages() error {
 	// コマンドオプションを読み込む
-	cliOptions, err := input.GetCliOptions()
+	cliOptions, err := input.InitCliOptions()
 	if err != nil {
 		return err
 	}
