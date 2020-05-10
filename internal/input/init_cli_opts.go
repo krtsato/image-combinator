@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-// コマンドオプション・フラグ指定によって
-// フィールド値を更新する
+// フラグ指定・対話型 CLIによってフィールド値を更新する
 type CliOptions struct {
 	Platform string // 出力画像の投稿先
 	Usecase  string // 出力画像の用途
