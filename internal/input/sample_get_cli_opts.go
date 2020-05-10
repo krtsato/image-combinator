@@ -10,27 +10,8 @@ import (
 	"strings"
 )
 
-// 出力画像のサイズを切り替える
-type CliOptions struct {
-	Platform string // 画像の投稿先
-	Usecase  string // 画像の用途
-}
-
-// 対話型 CLI を使う場合に参照するマップ
-// platform : usecase : [width, height]
-var patternMap = map[string]map[string][]int{
-	"twitter": {
-		"header": {1500, 500},
-		"post":   {1024, 576},
-	},
-	"youtube": {
-		"screen":    {1920, 1080},
-		"thumbnail": {1280, 720},
-	},
-}
-
 // platform や usecase の登録を確認する
-func mapKeysExist(options *CliOptions) (bool, bool) {
+func _mapKeysExist(options *CliOptions) (bool, bool) {
 	platform := options.Platform
 	usecaseExists := false
 
@@ -42,10 +23,10 @@ func mapKeysExist(options *CliOptions) (bool, bool) {
 	return platformExists, usecaseExists
 }
 
-func getMapKeys(rawMap interface{}) (string, error) {
+func _getMapKeys(rawMap interface{}) (string, error) {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return "", errors.New("Error: The argument is invalid because of the type or zero values")
+		return "", errors.New("Error: cannot get map keys because the argment type")
 	}
 
 	var rawKeyArr []string
@@ -60,34 +41,25 @@ func getMapKeys(rawMap interface{}) (string, error) {
 }
 
 // 対話型 CLI で platform や usecase の入力を求める
-func askMapKey(rawMap interface{}) error {
+func _askMapKey(rawMap interface{}) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return errors.New("Error: The argument is invalid because of the type or zero values")
+		return errors.New("Error: cannot get map keys because the argment type")
 	}
 
-	mapKeys, err := getMapKeys(rawMap)
+	mapKeys, err := _getMapKeys(rawMap)
 	if err != nil {
 		return err
 	}
-
-	switch refMap.Interface().(type) {
-	case map[string]map[string][]int:
-		fmt.Println("\nEnter the platform of output images. [" + mapKeys + "]")
-	case map[string][]int:
-		fmt.Println("\nEnter the usecase of output images. [" + mapKeys + "]")
-	default:
-		return errors.New("Error: The argument has invalid type of map")
-	}
-
+	fmt.Println("\nEnter the platform of output images. [" + mapKeys + "]")
 	return nil
 }
 
 // 対話型 CLI で platform 文字列を更新する
-func updateCliOptions(rawMap interface{}, options *CliOptions) error {
+func _updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return errors.New("Error: The argument is invalid because of the type or zero values")
+		return errors.New("Error: cannot get map keys because the argment type")
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -108,14 +80,14 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 			options.Usecase = inputText
 			return nil
 		default:
-			return errors.New("Error: The argument has invalid type of map")
+			return errors.New("Error: The argment has invalid type of map")
 		}
 	}
 
 	return errors.New("Error: \"" + inputText + "\" is not registered with this application.")
 }
 
-func GetCliOptions() (CliOptions, error) {
+func _GetCliOptions() (CliOptions, error) {
 	// CLI フラグで直接指定する場合
 	// デフォルトはフラグ未指定
 	var pFlag = flag.String("p", "", `The platform you want to post a image
@@ -128,7 +100,7 @@ func GetCliOptions() (CliOptions, error) {
 
 	// フラグが不正・未指定の場合
 	// 対話型 CLI に切り替える
-	pExists, uExists := mapKeysExist(cliOptions)
+	pExists, uExists := _mapKeysExist(cliOptions)
 	if pExists && uExists {
 		return *cliOptions, nil
 	}
@@ -136,41 +108,39 @@ func GetCliOptions() (CliOptions, error) {
 	// platform は登録済みかつ，usecase が不正・未指定の場合
 	if pExists && !uExists {
 		// usecase の入力を求める
-		if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
+		if err := _askMapKey(patternMap[cliOptions.Platform]); err != nil {
 			return CliOptions{}, err
 		}
 
 		// update
-		if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
+		if err := _updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
 			return CliOptions{}, err
 		}
-
-		return *cliOptions, nil
 	}
 
 	// platform が不正・未指定の場合
 	// ask
-	if err := askMapKey(patternMap); err != nil {
+	if err := _askMapKey(patternMap); err != nil {
 		return CliOptions{}, err
 	}
 
 	// update
-	if err := updateCliOptions(patternMap, cliOptions); err != nil {
+	if err := _updateCliOptions(patternMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
 	// usecase が登録されていた場合
-	if pExists, uExists := mapKeysExist(cliOptions); pExists && uExists {
+	if pExists, uExists := _mapKeysExist(cliOptions); pExists && uExists {
 		return *cliOptions, nil
 	}
 
 	// usecase が登録されていない場合
-	if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
+	if err := _askMapKey(patternMap[cliOptions.Platform]); err != nil {
 		return CliOptions{}, err
 	}
 
 	// update
-	if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
+	if err := _updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
