@@ -79,7 +79,7 @@ func askMapKey(rawMap interface{}) error {
 
 	switch refMap.Interface().(type) {
 	case map[string]map[string][]int:
-		fmt.Println("\nEnter the platform of output images. [" + mapKeys + "]")
+		fmt.Println("\nEnter the platform where you will submit images. [" + mapKeys + "]")
 	case map[string][]int:
 		fmt.Println("\nEnter the usecase of output images. [" + mapKeys + "]")
 	default:
