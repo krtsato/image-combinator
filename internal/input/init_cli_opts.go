@@ -19,7 +19,7 @@ type CliOptions struct {
 
 // オプションの有効値を格納したマップ
 // platform : usecase : [width, height]
-var patternMap = map[string]map[string][]int{
+var PatternMap = map[string]map[string][]int{
 	"twitter": {
 		"header": {1500, 500},
 		"post":   {1024, 576},
@@ -32,7 +32,7 @@ var patternMap = map[string]map[string][]int{
 
 // platform や usecase の有効確認をする
 // (true, true), (true, false), (false, false) の３通り
-func mapKeysExist(options *CliOptions) (bool, bool) {
+func mapKeysExist(patternMap map[string]map[string][]int, options *CliOptions) (bool, bool) {
 	platform := options.Platform
 	usecaseExists := false
 
@@ -135,9 +135,10 @@ func InitCliOptions() (CliOptions, error) {
 	youtube: "screen" or "thumbnail"`)
 	flag.Parse()
 	cliOptions := &CliOptions{Platform: *pFlag, Usecase: *uFlag}
+	usecaseMap := PatternMap[cliOptions.Platform]
 
 	// フラグで適値を指定した場合は完了
-	pExists, uExists := mapKeysExist(cliOptions)
+	pExists, uExists := mapKeysExist(PatternMap, cliOptions)
 	if pExists && uExists {
 		return *cliOptions, nil
 	}
@@ -146,12 +147,12 @@ func InitCliOptions() (CliOptions, error) {
 	// platform が適値かつ usecase は不正・未指定の場合
 	if pExists && !uExists {
 		// usecase の入力を求める
-		if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
+		if err := askMapKey(usecaseMap); err != nil {
 			return CliOptions{}, err
 		}
 
 		// usecase が更新できたら完了
-		if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
+		if err := updateCliOptions(usecaseMap, cliOptions); err != nil {
 			return CliOptions{}, err
 		}
 
@@ -160,30 +161,30 @@ func InitCliOptions() (CliOptions, error) {
 
 	// platform が不正・未指定の場合
 	// platform の入力を求める
-	if err := askMapKey(patternMap); err != nil {
+	if err := askMapKey(PatternMap); err != nil {
 		return CliOptions{}, err
 	}
 
 	// platform を更新する
 	// 今後の処理では platform が適値であることが保証される
-	if err := updateCliOptions(patternMap, cliOptions); err != nil {
+	if err := updateCliOptions(PatternMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
 	// フラグで予め指定した usecase が適値だった場合
 	// platform と usecase が共に適値であるため完了
-	if pExists, uExists := mapKeysExist(cliOptions); pExists && uExists {
+	if pExists, uExists := mapKeysExist(PatternMap, cliOptions); pExists && uExists {
 		return *cliOptions, nil
 	}
 
 	// フラグで予め指定した usecase が不正・未指定だった場合
 	// usecase の入力を求める
-	if err := askMapKey(patternMap[cliOptions.Platform]); err != nil {
+	if err := askMapKey(usecaseMap); err != nil {
 		return CliOptions{}, err
 	}
 
 	// usecase が更新できたら完了
-	if err := updateCliOptions(patternMap[cliOptions.Platform], cliOptions); err != nil {
+	if err := updateCliOptions(usecaseMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
