@@ -35,7 +35,7 @@ func integrateImages() error {
 	}
 
 	// 加工
-	screen := convert.Combine(imgs)
+	screen := convert.Combine(imgs, cliOptions)
 
 	// 出力
 	if err := output.Save(screen); err != nil {

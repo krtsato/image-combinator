@@ -2,16 +2,16 @@ package convert
 
 import (
 	"image"
-	"image-combinator/internal/calc"
 	"image-combinator/internal/input"
 	"image/draw"
 )
 
-func Combine(imgs input.Images) *image.RGBA {
+func Combine(imgs input.Images, options input.CliOptions) *image.RGBA {
 	// 背景画像の作成
-	screenWidth := calc.SumWidth(imgs)
-	screenHeight := calc.MaxHeight(imgs)
-	screen := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
+	platform := options.Platform
+	usecase := options.Usecase
+	screenSizeArr := input.PatternMap[platform][usecase]
+	screen := image.NewRGBA(image.Rect(0, 0, screenSizeArr[0], screenSizeArr[1]))
 
 	// 背景画像への書き込み
 	posX, posY := 0, 0

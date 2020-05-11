@@ -10,7 +10,7 @@ func GetPaths(dir string) ([]string, error) {
 
 	files, err := filepath.Glob(dir)
 	if err != nil {
-		return paths, err
+		return nil, err
 	}
 
 	paths = append(paths, files...)
