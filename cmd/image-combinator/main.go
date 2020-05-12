@@ -16,6 +16,7 @@ func integrateImages() error {
 	}
 	fmt.Println("platform : " + cliOptions.Platform)
 	fmt.Println("usecase : " + cliOptions.Usecase)
+	fmt.Println("density : " + cliOptions.Density)
 
 	// 全入力画像のパスを取得
 	paths, err := input.GetPaths("assets/input/*.jpg")

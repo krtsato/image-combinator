@@ -12,38 +12,67 @@ import (
 
 // フラグ指定・対話型 CLIによってフィールド値を更新する
 type CliOptions struct {
+	Density  string // 出力画像１枚あたりの入力画像枚数
 	Platform string // 出力画像の投稿先
 	Usecase  string // 出力画像の用途
 }
 
 // オプションの有効値を格納したマップ
-// platform : usecase : width (height) : int
-var PatternMap = map[string]map[string]map[string]int{
+// platform : usecase : size (density) : int
+type formatDependency map[string]map[string]int
+type usecaseDependency map[string]formatDependency
+type platformDependency map[string]usecaseDependency
+
+var PatternMap = platformDependency{
 	"twitter": {
 		"header": {
-			"width":  1500,
-			"height": 500,
+			"size": {
+				"width":  1500,
+				"height": 500,
+			},
+			"density": {
+				"min": 3,
+				"max": 75,
+			},
 		},
 		"post": {
-			"width":  1024,
-			"height": 576,
+			"size": {
+				"width":  1024,
+				"height": 576,
+			},
+			"density": {
+				"min": 10,
+				"max": 144,
+			},
 		},
 	},
 	"youtube": {
 		"screen": {
-			"width":  1920,
-			"height": 1080,
+			"size": {
+				"width":  1920,
+				"height": 1080,
+			},
+			"density": {
+				"min": 10,
+				"max": 144,
+			},
 		},
 		"thumbnail": {
-			"width":  1280,
-			"height": 720,
+			"size": {
+				"width":  1280,
+				"height": 720,
+			},
+			"density": {
+				"min": 10,
+				"max": 144,
+			},
 		},
 	},
 }
 
 // platform や usecase の有効確認をする
 // (true, true), (true, false), (false, false) の３通り
-func mapKeysExist(patternMap map[string]map[string]map[string]int, options *CliOptions) (bool, bool) {
+func mapKeysExist(patternMap platformDependency, options *CliOptions) (bool, bool) {
 	platform := options.Platform
 	usecaseExists := false
 
@@ -61,7 +90,7 @@ func mapKeysExist(patternMap map[string]map[string]map[string]int, options *CliO
 func getMapKeys(rawMap interface{}) (string, error) {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return "", errors.New("Error: The argument is invalid because of the type or zero values")
+		return "", errors.New("Error: The argument is invalid because of the type or zero values.")
 	}
 
 	var rawKeyArr []string
@@ -80,7 +109,7 @@ func getMapKeys(rawMap interface{}) (string, error) {
 func askMapKey(rawMap interface{}) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return errors.New("Error: The argument is invalid because of the type or zero values")
+		return errors.New("Error: The argument is invalid because of the type or zero values.")
 	}
 
 	mapKeys, err := getMapKeys(rawMap)
@@ -89,12 +118,12 @@ func askMapKey(rawMap interface{}) error {
 	}
 
 	switch refMap.Interface().(type) {
-	case map[string]map[string]map[string]int:
-		fmt.Println("\nEnter the platform where you will submit images. [" + mapKeys + "]")
-	case map[string]map[string]int:
-		fmt.Println("\nEnter the usecase of output images. [" + mapKeys + "]")
+	case platformDependency:
+		fmt.Printf("\nEnter the platform where you will submit images. [%s]\n", mapKeys)
+	case usecaseDependency:
+		fmt.Printf("\nEnter the usecase of output images. [%s]\n", mapKeys)
 	default:
-		return errors.New("Error: The argument has invalid type of map")
+		return errors.New("Error: The argument has invalid type of map.")
 	}
 
 	return nil
@@ -105,7 +134,7 @@ func askMapKey(rawMap interface{}) error {
 func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	refMap := reflect.ValueOf(rawMap)
 	if refMap.Kind() != reflect.Map {
-		return errors.New("Error: The argument is invalid because of the type or zero values")
+		return errors.New("Error: The argument is invalid because of the type or zero values.")
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -120,18 +149,19 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	refVal := refMap.MapIndex(refKey)
 	if exist := refVal.IsValid(); exist {
 		switch refVal.Interface().(type) {
-		case map[string]map[string]int:
+		case usecaseDependency:
 			options.Platform = inputText
 			return nil
-		case map[string]int:
+		case formatDependency:
 			options.Usecase = inputText
 			return nil
 		default:
-			return errors.New("Error: The argument has invalid type of map")
+			fmt.Println(refVal.Type())
+			return errors.New("Error: The argument has invalid type of map.!!!!")
 		}
 	}
 
-	return errors.New("Error: \"" + inputText + "\" is not registered with this application.")
+	return fmt.Errorf("Error: \"%s\" is not registered with this application.", inputText)
 }
 
 // ポインタ型の *cliOptions を適値で初期化する
@@ -142,11 +172,20 @@ func InitCliOptions() (CliOptions, error) {
 	var pFlag = flag.String("p", "", `The platform you want to post a image
 	Assign "twitter" or "youtube".`)
 	var uFlag = flag.String("u", "", `The usecase in your choosing platform
-	twitter: "post" or "header"
-	youtube: "screen" or "thumbnail"`)
+	twitter: Assign "post" or "header".
+	youtube: Assign "screen" or "thumbnail".`)
+	var dFlag = flag.String("d", "min", `The density of materials per output image for your choosing usecase
+	Assign "min" or "max".`)
 	flag.Parse()
-	cliOptions := &CliOptions{Platform: *pFlag, Usecase: *uFlag}
+	cliOptions := &CliOptions{Platform: *pFlag, Usecase: *uFlag, Density: *dFlag}
 
+	// density を検証する
+	// フラグがデフォルトを更新する不正値の場合
+	if !(*dFlag == "min" || *dFlag == "max") {
+		return CliOptions{}, errors.New("Error: The argument of \"-d\" must be \"min\" or \"max\".")
+	}
+
+	// platform と usecase を検証する
 	// フラグで適値を指定した場合は完了
 	pExists, uExists := mapKeysExist(PatternMap, cliOptions)
 	if pExists && uExists {

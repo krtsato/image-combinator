@@ -10,7 +10,7 @@ func Combine(imgs input.Images, options input.CliOptions) *image.RGBA {
 	// 背景画像の作成
 	platform := options.Platform
 	usecase := options.Usecase
-	screenSizeArr := input.PatternMap[platform][usecase]
+	screenSizeArr := input.PatternMap[platform][usecase]["size"]
 	screen := image.NewRGBA(image.Rect(0, 0, screenSizeArr["width"], screenSizeArr["height"]))
 
 	// 背景画像への書き込み
