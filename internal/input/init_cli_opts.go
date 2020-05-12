@@ -17,69 +17,16 @@ type CliOptions struct {
 	Usecase  string // 出力画像の用途
 }
 
-// オプションの有効値を格納したマップ
-// platform : usecase : size (density) : int
-type formatDependency map[string]map[string]int
-type usecaseDependency map[string]formatDependency
-type platformDependency map[string]usecaseDependency
-
-var PatternMap = platformDependency{
-	"twitter": {
-		"header": {
-			"size": {
-				"width":  1500,
-				"height": 500,
-			},
-			"density": {
-				"min": 3,
-				"max": 75,
-			},
-		},
-		"post": {
-			"size": {
-				"width":  1024,
-				"height": 576,
-			},
-			"density": {
-				"min": 10,
-				"max": 144,
-			},
-		},
-	},
-	"youtube": {
-		"screen": {
-			"size": {
-				"width":  1920,
-				"height": 1080,
-			},
-			"density": {
-				"min": 10,
-				"max": 144,
-			},
-		},
-		"thumbnail": {
-			"size": {
-				"width":  1280,
-				"height": 720,
-			},
-			"density": {
-				"min": 10,
-				"max": 144,
-			},
-		},
-	},
-}
-
 // platform や usecase の有効確認をする
 // (true, true), (true, false), (false, false) の３通り
-func mapKeysExist(patternMap platformDependency, options *CliOptions) (bool, bool) {
+func mapKeysExist(platformMap platformMapType, options *CliOptions) (bool, bool) {
 	platform := options.Platform
 	usecaseExists := false
 
 	// platform が適値である場合に限り usecase の検証を行う
-	_, platformExists := patternMap[platform]
+	_, platformExists := platformMap[platform]
 	if platformExists {
-		_, uExists := patternMap[platform][options.Usecase]
+		_, uExists := platformMap[platform][options.Usecase]
 		usecaseExists = uExists
 	}
 	return platformExists, usecaseExists
@@ -118,9 +65,9 @@ func askMapKey(rawMap interface{}) error {
 	}
 
 	switch refMap.Interface().(type) {
-	case platformDependency:
+	case platformMapType:
 		fmt.Printf("\nEnter the platform where you will submit images. [%s]\n", mapKeys)
-	case usecaseDependency:
+	case usecaseMapType:
 		fmt.Printf("\nEnter the usecase of output images. [%s]\n", mapKeys)
 	default:
 		return errors.New("Error: The argument has invalid type of map.")
@@ -149,15 +96,15 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	refVal := refMap.MapIndex(refKey)
 	if exist := refVal.IsValid(); exist {
 		switch refVal.Interface().(type) {
-		case usecaseDependency:
+		case usecaseMapType:
 			options.Platform = inputText
 			return nil
-		case formatDependency:
+		case screenMapType:
 			options.Usecase = inputText
 			return nil
 		default:
 			fmt.Println(refVal.Type())
-			return errors.New("Error: The argument has invalid type of map.!!!!")
+			return errors.New("Error: The argument has invalid type of map.")
 		}
 	}
 
@@ -187,7 +134,7 @@ func InitCliOptions() (CliOptions, error) {
 
 	// platform と usecase を検証する
 	// フラグで適値を指定した場合は完了
-	pExists, uExists := mapKeysExist(PatternMap, cliOptions)
+	pExists, uExists := mapKeysExist(PlatformMap, cliOptions)
 	if pExists && uExists {
 		return *cliOptions, nil
 	}
@@ -196,12 +143,12 @@ func InitCliOptions() (CliOptions, error) {
 	// platform が適値かつ usecase は不正・未指定の場合
 	if pExists && !uExists {
 		// usecase の入力を求める
-		if err := askMapKey(PatternMap[cliOptions.Platform]); err != nil {
+		if err := askMapKey(PlatformMap[cliOptions.Platform]); err != nil {
 			return CliOptions{}, err
 		}
 
 		// usecase が更新できたら完了
-		if err := updateCliOptions(PatternMap[cliOptions.Platform], cliOptions); err != nil {
+		if err := updateCliOptions(PlatformMap[cliOptions.Platform], cliOptions); err != nil {
 			return CliOptions{}, err
 		}
 
@@ -210,30 +157,30 @@ func InitCliOptions() (CliOptions, error) {
 
 	// platform が不正・未指定の場合
 	// platform の入力を求める
-	if err := askMapKey(PatternMap); err != nil {
+	if err := askMapKey(PlatformMap); err != nil {
 		return CliOptions{}, err
 	}
 
 	// platform を更新する
 	// 今後の処理では platform が適値であることが保証される
-	if err := updateCliOptions(PatternMap, cliOptions); err != nil {
+	if err := updateCliOptions(PlatformMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
 	// フラグで予め指定した usecase が適値だった場合
 	// platform と usecase が共に適値であるため完了
-	if pExists, uExists := mapKeysExist(PatternMap, cliOptions); pExists && uExists {
+	if pExists, uExists := mapKeysExist(PlatformMap, cliOptions); pExists && uExists {
 		return *cliOptions, nil
 	}
 
 	// フラグで予め指定した usecase が不正・未指定だった場合
 	// usecase の入力を求める
-	if err := askMapKey(PatternMap[cliOptions.Platform]); err != nil {
+	if err := askMapKey(PlatformMap[cliOptions.Platform]); err != nil {
 		return CliOptions{}, err
 	}
 
 	// usecase が更新できたら完了
-	if err := updateCliOptions(PatternMap[cliOptions.Platform], cliOptions); err != nil {
+	if err := updateCliOptions(PlatformMap[cliOptions.Platform], cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
