@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"image-combinator/internal/calc"
 	"image-combinator/internal/convert"
 	"image-combinator/internal/input"
 	"image-combinator/internal/output"
@@ -17,33 +15,38 @@ func integrateImages() error {
 	}
 	density := cliOptions.Density
 
-	// 全入力画像のパスを取得
-	paths, err := input.GetPaths("assets/input/*.jpg")
+	// 全入力画像のパス・出力画像枚数を取得する
+	paths, outputQuant, err := input.GetPaths("assets/input/*.jpg", density)
 	if err != nil {
 		return err
 	}
 
-	// 画像の不足分を取得する
-	outputQuant, addition := calc.GetOutputQuant(len(paths), density)
-	fmt.Println(outputQuant, addition)
+	entryIndex := 0
+	for outputQuant > 0 {
+		var imgs input.Images
+		entryPaths := paths[entryIndex:density]
 
-	// 全入力画像の情報を格納
-	var imgs input.Images
-	for _, path := range paths {
-		img, err := input.InitImage(path)
-		if err != nil {
+		// 入力画像の情報を格納
+		for _, path := range entryPaths {
+			img, err := input.InitImage(path)
+			if err != nil {
+				return err
+			}
+
+			imgs = append(imgs, img)
+			entryIndex++
+		}
+
+		// 加工
+		screen := convert.Combine(imgs, cliOptions)
+
+		// 出力
+		if err := output.Save(screen); err != nil {
 			return err
 		}
 
-		imgs = append(imgs, img)
-	}
-
-	// 加工
-	screen := convert.Combine(imgs, cliOptions)
-
-	// 出力
-	if err := output.Save(screen); err != nil {
-		return err
+		// 出力画像の残り枚数を減らす
+		outputQuant--
 	}
 
 	return nil

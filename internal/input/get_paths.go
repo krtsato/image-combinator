@@ -1,21 +1,26 @@
 package input
 
 import (
-	"fmt"
+	"image-combinator/internal/calc"
 	"path/filepath"
 )
 
-func GetPaths(dir string) ([]string, error) {
-	var paths []string
-
+func GetPaths(dir string, density int) ([]string, int, error) {
+	// 入力画像のパスを取得する
 	files, err := filepath.Glob(dir)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
+	filesQuant := len(files)
+
+	// 入力画像の不足分を取得する
+	outputQuant, addition := calc.GetOutputQuant(filesQuant, density)
+	paths := make([]string, filesQuant+addition)
 
 	paths = append(paths, files...)
-	if len(paths) < 2 {
-		return paths, fmt.Errorf("Error: need two or more images")
+	for addition > 0 {
+		paths = append(paths, "assets/input/default/soundtrackhub_icon.jpg")
 	}
-	return paths, nil
+
+	return paths, outputQuant, nil
 }

@@ -1,6 +1,6 @@
 .DS_Store
 /assets/input/*
-!/assets/input/.keep
+!/assets/input/default/*
 /assets/output/*
 !/assets/output/.keep
 /.markdownlint.yml

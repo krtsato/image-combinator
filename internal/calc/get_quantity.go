@@ -1,12 +1,12 @@
 package calc
 
-func GetOutputQuant(preparedImg int, density int) (int, int) {
+func GetOutputQuant(priorQuant int, density int) (int, int) {
 	outputQuant := 1
-	for density < preparedImg {
-		preparedImg -= density
+	for density < priorQuant {
+		priorQuant -= density
 		outputQuant++
 	}
-	addition := density - preparedImg
+	addition := density - priorQuant
 
 	return outputQuant, addition
 }
