@@ -106,7 +106,7 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 		case screenMapType:
 			options.Usecase = inputText
 			return nil
-		case densityType:
+		case measureMapType:
 			options.Density, _ = strconv.Atoi(inputText)
 			return nil
 		default:

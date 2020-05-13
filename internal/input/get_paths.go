@@ -19,7 +19,8 @@ func GetPaths(dir string, density int) ([]string, int, error) {
 
 	paths = append(paths, files...)
 	for addition > 0 {
-		paths = append(paths, "assets/input/default/soundtrackhub_icon.jpg")
+		paths = append(paths, "assets/input/default/soundtrackhub-icon.jpg")
+		addition--
 	}
 
 	return paths, outputQuant, nil
