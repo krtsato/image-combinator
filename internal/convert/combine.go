@@ -6,7 +6,7 @@ import (
 	"image/draw"
 )
 
-func Combine(imgs input.Images, options input.CliOptions) *image.RGBA {
+func Combine(imgs input.Images, options *input.CliOptions) *image.RGBA {
 	// 背景画像の作成
 	platform := options.Platform
 	usecase := options.Usecase

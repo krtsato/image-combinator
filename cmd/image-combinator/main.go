@@ -28,12 +28,12 @@ func integrateImages() error {
 
 		// 入力画像の情報を格納
 		for _, path := range entryPaths {
-			img, err := input.InitImage(path)
+			img, err := input.InitImage(path, cliOptions)
 			if err != nil {
 				return err
 			}
 
-			imgs = append(imgs, img)
+			imgs = append(imgs, *img)
 			entryIndex++
 		}
 

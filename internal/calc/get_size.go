@@ -17,3 +17,5 @@ func AspectRatio(width int, height int) string {
 	aspectRatio := fmt.Sprintf("%d:%d", wRatio, hRatio)
 	return aspectRatio
 }
+
+// func ResizeImage

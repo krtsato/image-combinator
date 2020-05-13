@@ -154,7 +154,7 @@ func updateDensity(options *CliOptions) error {
 
 // ポインタ型の *cliOptions を適値で初期化する
 // フラグ指定を受けた上で，不足分のオプションを対話型 CLI で補う
-func InitCliOptions() (CliOptions, error) {
+func InitCliOptions() (*CliOptions, error) {
 	// platform と usecase のフラグを用意する
 	// デフォルトではフラグを指定しない
 	var pFlag = flag.String("p", "", `The platform you want to post a image
@@ -172,10 +172,10 @@ func InitCliOptions() (CliOptions, error) {
 	if pExists && uExists {
 		// density の入力・更新に成功したら完了
 		if err := updateDensity(cliOptions); err != nil {
-			return CliOptions{}, err
+			return &CliOptions{}, err
 		}
 
-		return *cliOptions, nil
+		return cliOptions, nil
 	}
 
 	// フラグが不正・未指定の場合は対話型 CLI に切り替える
@@ -184,27 +184,27 @@ func InitCliOptions() (CliOptions, error) {
 		// usecase の入力・更新する
 		// platform と usecase  が適値であることが保証される
 		if err := updateUsecase(cliOptions); err != nil {
-			return CliOptions{}, err
+			return &CliOptions{}, err
 		}
 
 		// density の入力・更新に成功したら完了
 		if err := updateDensity(cliOptions); err != nil {
-			return CliOptions{}, err
+			return &CliOptions{}, err
 		}
 
-		return *cliOptions, nil
+		return cliOptions, nil
 	}
 
 	// platform が不正・未指定の場合
 	// platform の入力を求める
 	if err := askMapKey(PlatformMap); err != nil {
-		return CliOptions{}, err
+		return &CliOptions{}, err
 	}
 
 	// platform を更新する
 	// platform が適値であることが保証される
 	if err := updateCliOptions(PlatformMap, cliOptions); err != nil {
-		return CliOptions{}, err
+		return &CliOptions{}, err
 	}
 
 	// フラグで予め指定した usecase が適値だった場合
@@ -212,23 +212,23 @@ func InitCliOptions() (CliOptions, error) {
 	if pExists, uExists := mapKeysExist(PlatformMap, cliOptions); pExists && uExists {
 		// density の入力・更新に成功したら完了
 		if err := updateDensity(cliOptions); err != nil {
-			return CliOptions{}, err
+			return &CliOptions{}, err
 		}
 
-		return *cliOptions, nil
+		return cliOptions, nil
 	}
 
 	// フラグで予め指定した usecase が不正・未指定だった場合
 	// usecase の入力・更新する
 	// platform と usecase  が適値であることが保証される
 	if err := updateUsecase(cliOptions); err != nil {
-		return CliOptions{}, err
+		return &CliOptions{}, err
 	}
 
 	// density の入力・更新に成功したら完了
 	if err := updateDensity(cliOptions); err != nil {
-		return CliOptions{}, err
+		return &CliOptions{}, err
 	}
 
-	return *cliOptions, nil
+	return cliOptions, nil
 }

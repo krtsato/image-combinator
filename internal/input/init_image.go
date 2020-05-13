@@ -26,39 +26,45 @@ func getImage(file *os.File) (image.Image, error) {
 }
 
 // 画像サイズの読み込み
-func getImageConfig(file *bytes.Buffer) (image.Config, error) {
+func getImageConfig(file *bytes.Buffer) (*image.Config, error) {
 	config, _, err := image.DecodeConfig(file)
 	if err != nil {
-		return image.Config{}, err
+		return &image.Config{}, err
 	}
 
-	return config, nil
+	return &config, nil
 }
 
 // Image 構造体の初期化
-func InitImage(path string) (Image, error) {
+func InitImage(path string, options *CliOptions) (*Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return Image{}, err
+		return &Image{}, err
 	}
 	defer file.Close()
 
 	img, err := getImage(file)
 	if err != nil {
-		return Image{}, err
+		return &Image{}, err
 	}
 
 	// config を取得するため buf を用意する
 	// decode 後の file を使い回すと unknown format になる
 	buf := new(bytes.Buffer)
 	if err := jpeg.Encode(buf, img, nil); err != nil {
-		return Image{}, err
+		return &Image{}, err
 	}
 
 	config, err := getImageConfig(buf)
 	if err != nil {
-		return Image{}, err
+		return &Image{}, err
 	}
 
-	return Image{img, config.Width, config.Height}, nil
+	// 余白を算出
+	// xPadding
+	// sideLen
+	// 画像1枚あたりのサイズを算出
+	// 入力画像サイズの変換
+
+	return &Image{img, config.Width, config.Height}, nil
 }
