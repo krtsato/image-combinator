@@ -15,9 +15,7 @@ func integrateImages() error {
 	if err != nil {
 		return err
 	}
-	platform := &cliOptions.Platform
-	usecase := &cliOptions.Usecase
-	density := &cliOptions.Density
+	density := cliOptions.Density
 
 	// 全入力画像のパスを取得
 	paths, err := input.GetPaths("assets/input/*.jpg")
@@ -26,7 +24,7 @@ func integrateImages() error {
 	}
 
 	// 画像の不足分を取得する
-	outputQuant, addition := calc.GetOutputQuant(len(paths), input.PlatformMap[*platform][*usecase][*density])
+	outputQuant, addition := calc.GetOutputQuant(len(paths), density)
 	fmt.Println(outputQuant, addition)
 
 	// 全入力画像の情報を格納

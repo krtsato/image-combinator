@@ -5,14 +5,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"image-combinator/internal/calc"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
 // フラグ指定・対話型 CLIによってフィールド値を更新する
 type CliOptions struct {
-	Density  string // 出力画像１枚あたりの入力画像枚数
+	Density  int    // 出力画像１枚あたりの入力画像枚数
 	Platform string // 出力画像の投稿先
 	Usecase  string // 出力画像の用途
 }
@@ -69,6 +71,8 @@ func askMapKey(rawMap interface{}) error {
 		fmt.Printf("\nEnter the platform where you will submit images. [%s]\n", mapKeys)
 	case usecaseMapType:
 		fmt.Printf("\nEnter the usecase of output images. [%s]\n", mapKeys)
+	case densityMapType:
+		fmt.Printf("\nEnter the quantity of materials per output image. [%s]\n", mapKeys)
 	default:
 		return errors.New("Error: The argument has invalid type of map.")
 	}
@@ -102,13 +106,50 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 		case screenMapType:
 			options.Usecase = inputText
 			return nil
+		case densityType:
+			options.Density, _ = strconv.Atoi(inputText)
+			return nil
 		default:
 			fmt.Println(refVal.Type())
-			return errors.New("Error: The argument has invalid type of map.")
+			return errors.New("Error: The argument has invalid type.")
 		}
 	}
 
 	return fmt.Errorf("Error: \"%s\" is not registered with this application.", inputText)
+}
+
+// usecase を入力・更新する
+func updateUsecase(options *CliOptions) error {
+	// usecase の入力を求める
+	usecaseMap := PlatformMap[options.Platform]
+	if err := askMapKey(usecaseMap); err != nil {
+		return err
+	}
+
+	// usecase が更新できたら完了
+	if err := updateCliOptions(usecaseMap, options); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// density を入力・更新する
+func updateDensity(options *CliOptions) error {
+	// 画像配置密度の入力を求める
+	usecaseMap := PlatformMap[options.Platform][options.Usecase]
+	aspectRatio := calc.AspectRatio(usecaseMap["width"], usecaseMap["height"])
+	densityMap := aspectMap[aspectRatio]
+	if err := askMapKey(densityMap); err != nil {
+		return err
+	}
+
+	// density が更新できたら完了
+	if err := updateCliOptions(densityMap, options); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ポインタ型の *cliOptions を適値で初期化する
@@ -121,34 +162,33 @@ func InitCliOptions() (CliOptions, error) {
 	var uFlag = flag.String("u", "", `The usecase in your choosing platform
 	twitter: Assign "post" or "header".
 	youtube: Assign "screen" or "thumbnail".`)
-	var dFlag = flag.String("d", "min", `The density of materials per output image for your choosing usecase
-	Assign "min" or "max".`)
+	var dFlag = flag.Int("d", 0, "The density of materials per output image for your choosing usecase.")
 	flag.Parse()
-	cliOptions := &CliOptions{Platform: *pFlag, Usecase: *uFlag, Density: *dFlag}
-
-	// density を検証する
-	// フラグがデフォルトを更新する不正値の場合
-	if !(*dFlag == "min" || *dFlag == "max") {
-		return CliOptions{}, errors.New("Error: The argument of \"-d\" must be \"min\" or \"max\".")
-	}
+	cliOptions := &CliOptions{Density: *dFlag, Platform: *pFlag, Usecase: *uFlag}
 
 	// platform と usecase を検証する
-	// フラグで適値を指定した場合は完了
+	// フラグで適値を指定した場合
 	pExists, uExists := mapKeysExist(PlatformMap, cliOptions)
 	if pExists && uExists {
+		// density の入力・更新に成功したら完了
+		if err := updateDensity(cliOptions); err != nil {
+			return CliOptions{}, err
+		}
+
 		return *cliOptions, nil
 	}
 
 	// フラグが不正・未指定の場合は対話型 CLI に切り替える
 	// platform が適値かつ usecase は不正・未指定の場合
 	if pExists && !uExists {
-		// usecase の入力を求める
-		if err := askMapKey(PlatformMap[cliOptions.Platform]); err != nil {
+		// usecase の入力・更新する
+		// platform と usecase  が適値であることが保証される
+		if err := updateUsecase(cliOptions); err != nil {
 			return CliOptions{}, err
 		}
 
-		// usecase が更新できたら完了
-		if err := updateCliOptions(PlatformMap[cliOptions.Platform], cliOptions); err != nil {
+		// density の入力・更新に成功したら完了
+		if err := updateDensity(cliOptions); err != nil {
 			return CliOptions{}, err
 		}
 
@@ -162,25 +202,31 @@ func InitCliOptions() (CliOptions, error) {
 	}
 
 	// platform を更新する
-	// 今後の処理では platform が適値であることが保証される
+	// platform が適値であることが保証される
 	if err := updateCliOptions(PlatformMap, cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
 	// フラグで予め指定した usecase が適値だった場合
-	// platform と usecase が共に適値であるため完了
+	// platform と usecase  が適値であることが保証される
 	if pExists, uExists := mapKeysExist(PlatformMap, cliOptions); pExists && uExists {
+		// density の入力・更新に成功したら完了
+		if err := updateDensity(cliOptions); err != nil {
+			return CliOptions{}, err
+		}
+
 		return *cliOptions, nil
 	}
 
 	// フラグで予め指定した usecase が不正・未指定だった場合
-	// usecase の入力を求める
-	if err := askMapKey(PlatformMap[cliOptions.Platform]); err != nil {
+	// usecase の入力・更新する
+	// platform と usecase  が適値であることが保証される
+	if err := updateUsecase(cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 
-	// usecase が更新できたら完了
-	if err := updateCliOptions(PlatformMap[cliOptions.Platform], cliOptions); err != nil {
+	// density の入力・更新に成功したら完了
+	if err := updateDensity(cliOptions); err != nil {
 		return CliOptions{}, err
 	}
 

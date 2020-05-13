@@ -29,13 +29,17 @@ var PlatformMap = platformMapType{
 	},
 }
 
-var densityMap = usecaseMapType{
+type densityType int
+type densityMapType map[string]densityType
+type aspectMapType map[string]densityMapType
+
+var aspectMap = aspectMapType{
 	"3:1": {
-		"max": 75,
-		"min": 3,
+		"3":  3,
+		"75": 75,
 	},
-	"16:1": {
-		"max": 144,
-		"min": 10,
+	"16:9": {
+		"10":  10,
+		"144": 144,
 	},
 }
