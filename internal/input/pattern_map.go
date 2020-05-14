@@ -33,7 +33,7 @@ type measureMapType map[string]int
 type densityMapType map[string]measureMapType
 type aspectMapType map[string]densityMapType
 
-var aspectMap = aspectMapType{
+var AspectMap = aspectMapType{
 	"3:1": {
 		"3": {
 			"column": 3,

@@ -13,7 +13,7 @@ type Image struct {
 
 type Images []Image
 
-// Image 構造体の初期化
+// 入力画像のデータを取得する
 func InitImage(path string, options *CliOptions) (*Image, error) {
 	file, err := os.Open(path)
 	if err != nil {

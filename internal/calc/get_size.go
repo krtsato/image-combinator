@@ -19,15 +19,3 @@ func AspectRatio(width int, height int) string {
 	aspectRatio := fmt.Sprintf("%d:%d", wRatio, hRatio)
 	return aspectRatio
 }
-
-/*
-func ResizeImage(config *image.Config, screenMap input.ScreenMapType, measureMap input.MeasureMapType) error {
-	screenWidth
-	yPadding := screenMap["height"] % measureMap["raw"]
-	xPadding := screenMap["width"] % measureMap["column"]
-	imgWidth := (screenSize - (imgSize+1)*xPadding) / imgSize
-
-	config.Width = imgWidth
-	config.Height = imgHeight
-}
-*/

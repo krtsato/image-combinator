@@ -143,7 +143,7 @@ func updateAspectDensity(options *CliOptions) error {
 	options.AspectRatio = aspectRatio
 
 	// density の入力を求める
-	densityMap := aspectMap[aspectRatio]
+	densityMap := AspectMap[aspectRatio]
 	if err := askMapKey(densityMap); err != nil {
 		return err
 	}

@@ -21,6 +21,8 @@ func integrateImages() error {
 		return err
 	}
 
+	// 構成画像のサイズと余白を取得する
+
 	entryIndex := 0
 	for outputQuant > 0 {
 		var imgs input.Images
@@ -33,10 +35,12 @@ func integrateImages() error {
 				return err
 			}
 
+			// リサイズ
+			convert.ResizeImage(img)
+
 			imgs = append(imgs, *img)
 			entryIndex++
 		}
-		// リサイズ
 
 		// 加工
 		screen := convert.Combine(imgs, cliOptions)
