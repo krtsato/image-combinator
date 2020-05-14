@@ -36,6 +36,7 @@ func integrateImages() error {
 			imgs = append(imgs, *img)
 			entryIndex++
 		}
+		// リサイズ
 
 		// 加工
 		screen := convert.Combine(imgs, cliOptions)
