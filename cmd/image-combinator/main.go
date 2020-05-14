@@ -1,10 +1,12 @@
 package main
 
 import (
+	"image-combinator/internal/calc"
 	"image-combinator/internal/convert"
 	"image-combinator/internal/input"
 	"image-combinator/internal/output"
 	"log"
+	"strconv"
 )
 
 func integrateImages() error {
@@ -14,6 +16,9 @@ func integrateImages() error {
 		return err
 	}
 	density := cliOptions.Density
+	densityCol := input.AspectMap[cliOptions.AspectRatio][strconv.Itoa(density)]["column"]
+	screenWidth := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]["width"]
+	screenHeight := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]["Height"]
 
 	// 全入力画像のパス・出力画像枚数を取得する
 	paths, outputQuant, err := input.GetPaths("assets/input/*.jpg", density)
@@ -22,6 +27,7 @@ func integrateImages() error {
 	}
 
 	// 構成画像のサイズと余白を取得する
+	sideLen, padding := calc.MaterialSize(screenWidth, densityCol)
 
 	entryIndex := 0
 	for outputQuant > 0 {
@@ -30,20 +36,20 @@ func integrateImages() error {
 
 		// 入力画像の情報を格納
 		for _, path := range entryPaths {
-			img, err := input.InitImage(path, cliOptions)
+			img, err := input.InitImage(path)
 			if err != nil {
 				return err
 			}
 
 			// リサイズ
-			convert.ResizeImage(img)
+			convert.ResizeImage(img, sideLen)
 
 			imgs = append(imgs, *img)
 			entryIndex++
 		}
 
 		// 加工
-		screen := convert.Combine(imgs, cliOptions)
+		screen := convert.Combine(imgs, screenWidth, screenHeight, padding)
 
 		// 出力
 		if err := output.Save(screen); err != nil {

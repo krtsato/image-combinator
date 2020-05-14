@@ -14,7 +14,7 @@ type Image struct {
 type Images []Image
 
 // 入力画像のデータを取得する
-func InitImage(path string, options *CliOptions) (*Image, error) {
+func InitImage(path string) (*Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return &Image{}, err

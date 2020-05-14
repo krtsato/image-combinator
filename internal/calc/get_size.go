@@ -19,3 +19,10 @@ func AspectRatio(width int, height int) string {
 	aspectRatio := fmt.Sprintf("%d:%d", wRatio, hRatio)
 	return aspectRatio
 }
+
+func MaterialSize(screenSize int, densityCol int) (int, int) {
+	padding := screenSize % densityCol
+	paddingSum := padding * (densityCol + 1)
+	sideLen := (screenSize - paddingSum) / densityCol
+	return sideLen, padding
+}
