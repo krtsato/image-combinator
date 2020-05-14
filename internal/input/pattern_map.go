@@ -30,26 +30,26 @@ var PlatformMap = platformMapType{
 }
 
 type measureMapType map[string]int
-type densityMapType map[string]measureMapType
+type densityMapType map[int]measureMapType
 type aspectMapType map[string]densityMapType
 
 var AspectMap = aspectMapType{
 	"3:1": {
-		"3": {
+		3: {
 			"column": 3,
 			"row":    1,
 		},
-		"75": {
+		75: {
 			"column": 15,
 			"row":    5,
 		},
 	},
 	"16:9": {
-		"10": {
+		10: {
 			"column": 5,
 			"row":    2,
 		},
-		"144": {
+		144: {
 			"column": 16,
 			"row":    9,
 		},

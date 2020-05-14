@@ -47,7 +47,13 @@ func getMapKeys(rawMap interface{}) (string, error) {
 	refKeys := refMap.MapKeys()
 
 	for _, key := range refKeys {
-		rawKeyArr = append(rawKeyArr, key.String())
+		var keyStr string
+		if key.Kind() == reflect.Int {
+			keyStr = strconv.Itoa(key.Interface().(int))
+		} else {
+			keyStr = key.String()
+		}
+		rawKeyArr = append(rawKeyArr, keyStr)
 	}
 
 	rawKeys := strings.Join(rawKeyArr, " / ")
@@ -142,8 +148,15 @@ func updateAspectDensity(options *CliOptions) error {
 	aspectRatio := calc.AspectRatio(usecaseMap["width"], usecaseMap["height"])
 	options.AspectRatio = aspectRatio
 
-	// density の入力を求める
+	// フラグで予め指定した density が適値ならば完了
 	densityMap := AspectMap[aspectRatio]
+
+	if _, dExists := densityMap[options.Density]; dExists {
+		return nil
+	}
+
+	// density が不正・未指定の場合
+	// density の入力を求める
 	if err := askMapKey(densityMap); err != nil {
 		return err
 	}

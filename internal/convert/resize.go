@@ -10,7 +10,7 @@ import (
 func ResizeImage(img *input.Image, sideLen int) {
 	scaledImg := image.NewRGBA(image.Rect(0, 0, sideLen, sideLen))
 	draw.CatmullRom.Scale(scaledImg, scaledImg.Bounds(), img.Src, img.Src.Bounds(), draw.Over, nil)
-	scaledBounds := scaledImg.Bounds()
-	img.Width = scaledBounds.Dx()
-	img.Height = scaledBounds.Dy()
+	img.Src = scaledImg
+	img.Width = scaledImg.Bounds().Dx()
+	img.Height = scaledImg.Bounds().Dy()
 }

@@ -6,7 +6,6 @@ import (
 	"image-combinator/internal/input"
 	"image-combinator/internal/output"
 	"log"
-	"strconv"
 )
 
 func integrateImages() error {
@@ -16,7 +15,7 @@ func integrateImages() error {
 		return err
 	}
 	density := cliOptions.Density
-	measureMap := input.AspectMap[cliOptions.AspectRatio][strconv.Itoa(density)]
+	measureMap := input.AspectMap[cliOptions.AspectRatio][density]
 	densityCol := measureMap["column"]
 	densityRow := measureMap["row"]
 	screenMap := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]

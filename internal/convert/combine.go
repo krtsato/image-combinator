@@ -18,8 +18,8 @@ func Combine(imgs input.Images, screenWidth, screenHeight, paddingX, paddingY, d
 		draw.Draw(screen, rect, img.Src, image.Point{0, 0}, draw.Over)
 
 		// １行分の連結を続ける場合
-		if densityCol%(i+1) > 0 {
-			posX += img.Width
+		if densityCol-(i%densityCol) > 1 {
+			posX += paddingX + img.Width
 			continue
 		}
 
