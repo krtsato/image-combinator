@@ -17,7 +17,7 @@ func GetPaths(dir string, density int) ([]string, int, error) {
 	outputQuant, addition := calc.GetOutputQuant(filesQuant, density)
 	paths := make([]string, filesQuant+addition)
 
-	paths = append(paths, files...)
+	paths = append(paths, files...) // なぜか空欄が入る
 	for addition > 0 {
 		paths = append(paths, "assets/input/default/soundtrackhub-icon.jpg")
 		addition--

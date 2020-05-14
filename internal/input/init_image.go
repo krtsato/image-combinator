@@ -50,6 +50,7 @@ func InitImage(path string, options *CliOptions) (*Image, error) {
 
 	// config を取得するため buf を用意する
 	// decode 後の file を使い回すと unknown format になる
+	// 今後 image.Decode や img.Bounds().Dx()/Dy()
 	buf := new(bytes.Buffer)
 	if err := jpeg.Encode(buf, img, nil); err != nil {
 		return &Image{}, err
@@ -60,11 +61,16 @@ func InitImage(path string, options *CliOptions) (*Image, error) {
 		return &Image{}, err
 	}
 
-	// 余白を算出
-	// xPadding
-	// sideLen
-	// 画像1枚あたりのサイズを算出
-	// 入力画像サイズの変換
+	/*
+		platform := options.Platform
+		usecase := options.Usecase
+		aspectRatio := options.AspectRatio
+		density := strconv.Itoa(options.Density)
+		calc.ResizeImage()
+	*/
+
+	config.Width = 200
+	config.Height = 200
 
 	return &Image{img, config.Width, config.Height}, nil
 }

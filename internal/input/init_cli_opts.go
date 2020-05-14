@@ -14,9 +14,10 @@ import (
 
 // フラグ指定・対話型 CLIによってフィールド値を更新する
 type CliOptions struct {
-	Density  int    // 出力画像１枚あたりの入力画像枚数
-	Platform string // 出力画像の投稿先
-	Usecase  string // 出力画像の用途
+	AspectRatio string // 出力画像のアスペクト比 : 再計算コスト削減のため保持する
+	Density     int    // 出力画像１枚あたりの入力画像枚数
+	Platform    string // 出力画像の投稿先
+	Usecase     string // 出力画像の用途
 }
 
 // platform や usecase の有効確認をする
@@ -134,11 +135,14 @@ func updateUsecase(options *CliOptions) error {
 	return nil
 }
 
-// density を入力・更新する
-func updateDensity(options *CliOptions) error {
-	// 画像配置密度の入力を求める
+// aspectRatio・density を入力・更新する
+func updateAspectDensity(options *CliOptions) error {
+	// aspectRatio を更新する
 	usecaseMap := PlatformMap[options.Platform][options.Usecase]
 	aspectRatio := calc.AspectRatio(usecaseMap["width"], usecaseMap["height"])
+	options.AspectRatio = aspectRatio
+
+	// density の入力を求める
 	densityMap := aspectMap[aspectRatio]
 	if err := askMapKey(densityMap); err != nil {
 		return err
@@ -164,14 +168,14 @@ func InitCliOptions() (*CliOptions, error) {
 	youtube: Assign "screen" or "thumbnail".`)
 	var dFlag = flag.Int("d", 0, "The density of materials per output image for your choosing usecase.")
 	flag.Parse()
-	cliOptions := &CliOptions{Density: *dFlag, Platform: *pFlag, Usecase: *uFlag}
+	cliOptions := &CliOptions{AspectRatio: "", Density: *dFlag, Platform: *pFlag, Usecase: *uFlag}
 
 	// platform と usecase を検証する
 	// フラグで適値を指定した場合
 	pExists, uExists := mapKeysExist(PlatformMap, cliOptions)
 	if pExists && uExists {
 		// density の入力・更新に成功したら完了
-		if err := updateDensity(cliOptions); err != nil {
+		if err := updateAspectDensity(cliOptions); err != nil {
 			return &CliOptions{}, err
 		}
 
@@ -188,7 +192,7 @@ func InitCliOptions() (*CliOptions, error) {
 		}
 
 		// density の入力・更新に成功したら完了
-		if err := updateDensity(cliOptions); err != nil {
+		if err := updateAspectDensity(cliOptions); err != nil {
 			return &CliOptions{}, err
 		}
 
@@ -211,7 +215,7 @@ func InitCliOptions() (*CliOptions, error) {
 	// platform と usecase  が適値であることが保証される
 	if pExists, uExists := mapKeysExist(PlatformMap, cliOptions); pExists && uExists {
 		// density の入力・更新に成功したら完了
-		if err := updateDensity(cliOptions); err != nil {
+		if err := updateAspectDensity(cliOptions); err != nil {
 			return &CliOptions{}, err
 		}
 
@@ -226,7 +230,7 @@ func InitCliOptions() (*CliOptions, error) {
 	}
 
 	// density の入力・更新に成功したら完了
-	if err := updateDensity(cliOptions); err != nil {
+	if err := updateAspectDensity(cliOptions); err != nil {
 		return &CliOptions{}, err
 	}
 

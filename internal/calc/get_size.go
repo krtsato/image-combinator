@@ -1,6 +1,8 @@
 package calc
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func calcGcd(w int, h int) int {
 	if h == 0 {
@@ -18,4 +20,14 @@ func AspectRatio(width int, height int) string {
 	return aspectRatio
 }
 
-// func ResizeImage
+/*
+func ResizeImage(config *image.Config, screenMap input.ScreenMapType, measureMap input.MeasureMapType) error {
+	screenWidth
+	yPadding := screenMap["height"] % measureMap["raw"]
+	xPadding := screenMap["width"] % measureMap["column"]
+	imgWidth := (screenSize - (imgSize+1)*xPadding) / imgSize
+
+	config.Width = imgWidth
+	config.Height = imgHeight
+}
+*/

@@ -36,22 +36,22 @@ type aspectMapType map[string]densityMapType
 var aspectMap = aspectMapType{
 	"3:1": {
 		"3": {
-			"width":  3,
-			"height": 1,
+			"column": 3,
+			"raw":    1,
 		},
 		"75": {
-			"width":  15,
-			"height": 5,
+			"column": 15,
+			"raw":    5,
 		},
 	},
 	"16:9": {
 		"10": {
-			"width":  5,
-			"height": 2,
+			"column": 5,
+			"raw":    2,
 		},
 		"144": {
-			"width":  16,
-			"height": 9,
+			"column": 16,
+			"raw":    9,
 		},
 	},
 }
