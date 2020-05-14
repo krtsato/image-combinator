@@ -28,39 +28,36 @@ func integrateImages() error {
 		return err
 	}
 
-	// 構成画像のサイズと余白を取得する
+	// 入力画像１枚あたりのサイズ・余白を取得する
 	sideLen, paddingX, paddingY := calc.MaterialSize(screenW, screenH, densityCol, densityRow)
-	// 200, 4, 44
 
 	entryIndex := 0
-	for outputQuant > 0 {
-		var imgs input.Images
-		entryPaths := paths[entryIndex:density]
+	for i := 0; i < outputQuant; i++ {
+		// 出力画像１枚を構成する入力画像を取得する
+		entryPaths := paths[entryIndex : entryIndex+density]
 
-		// 入力画像の情報を格納
+		// 入力画像の情報を格納する
+		var imgs input.Images
 		for _, path := range entryPaths {
 			img, err := input.InitImage(path)
 			if err != nil {
 				return err
 			}
 
-			// リサイズ
+			// 計算結果をもとにリサイズする
 			convert.ResizeImage(img, sideLen)
 
 			imgs = append(imgs, *img)
 			entryIndex++
 		}
 
-		// 加工
+		// 画像を連結させる
 		screen := convert.Combine(imgs, screenW, screenH, paddingX, paddingY, densityCol, densityRow)
 
-		// 出力
-		if err := output.Save(screen); err != nil {
+		// 保存する
+		if err := output.Save(screen, i+1); err != nil {
 			return err
 		}
-
-		// 出力画像の残り枚数を減らす
-		outputQuant--
 	}
 
 	return nil

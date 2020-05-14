@@ -6,11 +6,11 @@ import (
 	"image/draw"
 )
 
-func Combine(imgs input.Images, screenWidth, screenHeight, paddingX, paddingY, densityCol, densityRow int) *image.RGBA {
-	// 背景画像の作成
-	screen := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
+func Combine(imgs input.Images, screenW, screenH, paddingX, paddingY, densityCol, densityRow int) *image.RGBA {
+	// 背景画像を作成する
+	screen := image.NewRGBA(image.Rect(0, 0, screenW, screenH))
 
-	// 背景画像への書き込み
+	// 入力画像を背景画像へ書き込む
 	posX := paddingX
 	posY := paddingY
 	for i, img := range imgs {
