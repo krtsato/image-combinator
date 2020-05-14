@@ -17,7 +17,7 @@ type Images []Image
 func InitImage(path string) (*Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return &Image{}, err
+		return nil, err
 	}
 	defer file.Close()
 

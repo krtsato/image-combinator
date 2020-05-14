@@ -37,21 +37,21 @@ var AspectMap = aspectMapType{
 	"3:1": {
 		"3": {
 			"column": 3,
-			"raw":    1,
+			"row":    1,
 		},
 		"75": {
 			"column": 15,
-			"raw":    5,
+			"row":    5,
 		},
 	},
 	"16:9": {
 		"10": {
 			"column": 5,
-			"raw":    2,
+			"row":    2,
 		},
 		"144": {
 			"column": 16,
-			"raw":    9,
+			"row":    9,
 		},
 	},
 }

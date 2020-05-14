@@ -16,9 +16,12 @@ func integrateImages() error {
 		return err
 	}
 	density := cliOptions.Density
-	densityCol := input.AspectMap[cliOptions.AspectRatio][strconv.Itoa(density)]["column"]
-	screenWidth := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]["width"]
-	screenHeight := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]["Height"]
+	measureMap := input.AspectMap[cliOptions.AspectRatio][strconv.Itoa(density)]
+	densityCol := measureMap["column"]
+	densityRow := measureMap["row"]
+	screenMap := input.PlatformMap[cliOptions.Platform][cliOptions.Usecase]
+	screenW := screenMap["width"]
+	screenH := screenMap["height"]
 
 	// 全入力画像のパス・出力画像枚数を取得する
 	paths, outputQuant, err := input.GetPaths("assets/input/*.jpg", density)
@@ -27,7 +30,8 @@ func integrateImages() error {
 	}
 
 	// 構成画像のサイズと余白を取得する
-	sideLen, padding := calc.MaterialSize(screenWidth, densityCol)
+	sideLen, paddingX, paddingY := calc.MaterialSize(screenW, screenH, densityCol, densityRow)
+	// 200, 4, 44
 
 	entryIndex := 0
 	for outputQuant > 0 {
@@ -49,7 +53,7 @@ func integrateImages() error {
 		}
 
 		// 加工
-		screen := convert.Combine(imgs, screenWidth, screenHeight, padding)
+		screen := convert.Combine(imgs, screenW, screenH, paddingX, paddingY, densityCol, densityRow)
 
 		// 出力
 		if err := output.Save(screen); err != nil {
