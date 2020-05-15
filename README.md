@@ -20,10 +20,9 @@ Twitter と YouTube の画面に最適化している
 ## 前提
 
 - 入力画像１枚は正方形である
-- 入力画像は jpeg 形式である
+- 入力画像の拡張子は .jpg / .png / .gif である
 - 入力画像は assets/input に配置する
 - 出力画像は assets/output に生成される
-- 入出力画像の整形は今後対応
 
 <br>
 
@@ -42,12 +41,14 @@ post # ⏎
 
 Enter the quantity of materials per output image. [10 / 144]
 10 # ⏎
+
+successful output => assets/output/output-1.jpg (.png / .gif)
 ```
 
 フラグ指定
 
 ```zsh
-% go run cmd/image-combinator/main.go -p youtube -u thumbnail
+% go run cmd/image-combinator/main.go -p youtube -u thumbnail -d 144
 ```
 
 ## コマンドオプション
