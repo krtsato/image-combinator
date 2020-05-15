@@ -39,6 +39,9 @@ twitter # ⏎
 
 Enter the usecase of output images. [post / header]
 post # ⏎
+
+Enter the quantity of materials per output image. [10 / 144]\
+10 # ⏎
 ```
 
 フラグ指定
@@ -49,10 +52,11 @@ post # ⏎
 
 ## コマンドオプション
 
-| オプション | オプションの意味                            | オプションのパラメータ                                |
-| ---------- | ------------------------------------------- | ----------------------------------------------------- |
-| -p         | platform を指定する                         | twitter, youtube                                      |
-| -u         | usecase を指定する<br>platform ごとに異なる | twitter : post, header<br>youtube : screen, thumbnail |
+| オプション | オプションの意味                             | オプションのパラメータ                                      |
+| ---------- | -------------------------------------------- | ----------------------------------------------------------- |
+| -d         | density を指定する<br>アスペクト比に依存する | 3:1 : 3 または 75 枚で構成<br>16:9 : 10 または 144 枚で構成 |
+| -p         | platform を指定する                          | twitter, youtube                                            |
+| -u         | usecase を指定する<br>platform ごとに異なる  | twitter : post, header<br>youtube : screen, thumbnail       |
 
 <br>
 
@@ -65,7 +69,13 @@ post # ⏎
 - 入力画像のリサイズ
 - 入力画像枚数の過不足対応
 - 出力画像サイズ比の可変化
-- 出力画像のファイル形式変更（予定）
+- 出力画像のファイル形式変更
+
+## 追加予定の機能
+
+- CLI からのオプション入力の拡張
+  - 出力画像のファイル名を指定
+  - 出力画像のファイル形式を指定
 
 <br>
 

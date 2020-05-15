@@ -53,5 +53,7 @@ func Save(screen *image.RGBA, quantity int) error {
 		return err
 	}
 
+	fmt.Printf("successful output => %s", path)
+
 	return nil
 }
