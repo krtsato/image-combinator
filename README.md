@@ -15,6 +15,15 @@ Twitter と YouTube の画面に最適化している
 ![many-tracks](./assets/readme/twitter-post-10.jpg)
 ![many-tracks](./assets/readme/twitter-post-144.jpg)
 
+- [前提](#前提)
+- [実行](#実行)
+- [コマンドオプション](#コマンドオプション)
+- [機能](#機能)
+- [追加予定の機能](#追加予定の機能)
+- [出力画像のユースケース](#出力画像のユースケース)
+- [出力画像パターン](#出力画像パターン)
+- [入力画像の過不足](#入力画像の過不足)
+
 <br>
 
 ## 前提
@@ -71,6 +80,8 @@ successful output => assets/output/output-1.jpg (.png / .gif)
 - 入力画像枚数の過不足対応
 - 出力画像サイズ比の可変化
 - 出力画像のファイル形式変更
+
+<br>
 
 ## 追加予定の機能
 
