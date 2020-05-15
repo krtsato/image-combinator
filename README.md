@@ -13,7 +13,7 @@ Twitter と YouTube の画面に最適化している
 - 10 枚の画像から 1 枚の画像を生成
 - 144 枚の画像から 1 枚の画像を生成
 
-![output-image-10](./assets/readme/twitter-post-10.jpg)
+![output-image-10](./assets/readme/twitter-post-10-01.jpg)
 ![output-image-144](./assets/readme/twitter-post-144.jpg)
 
 - [前提](#前提)
