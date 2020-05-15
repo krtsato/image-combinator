@@ -23,7 +23,7 @@ func integrateImages() error {
 	screenH := screenMap["height"]
 
 	// 全入力画像のパス・出力画像枚数を取得する
-	paths, outputQuant, err := input.GetPaths("assets/input/*.jpg", density)
+	paths, outputQuant, err := input.GetPaths("assets/input/", density)
 	if err != nil {
 		return err
 	}
