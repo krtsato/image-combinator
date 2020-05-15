@@ -4,7 +4,8 @@
 Twitter と YouTube の画面に最適化している  
 大量の画像があるとき編集作業を自動化する
 
-![many-tracks](./assets/readme/many-tracks.jpg)
+![many-images](./assets/readme/many-tracks.jpg)
+![combined-images](./assets/readme/twitter-post-10-02.jpg)
 
 たとえば Twitter の投稿に用いる場合  
 16 : 9 のアスペクト比で 2 種類の画像を生成できる
@@ -12,8 +13,8 @@ Twitter と YouTube の画面に最適化している
 - 10 枚の画像から 1 枚の画像を生成
 - 144 枚の画像から 1 枚の画像を生成
 
-![many-tracks](./assets/readme/twitter-post-10.jpg)
-![many-tracks](./assets/readme/twitter-post-144.jpg)
+![output-image-10](./assets/readme/twitter-post-10.jpg)
+![output-image-144](./assets/readme/twitter-post-144.jpg)
 
 - [前提](#前提)
 - [実行](#実行)

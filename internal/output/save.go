@@ -37,7 +37,7 @@ func encode(file io.Writer, screen *image.RGBA, extension string) error {
 
 func Save(screen *image.RGBA, quantity int) error {
 	// 出力パスを指定する
-	extension := "png"
+	extension := "jpg"
 	fileName := fmt.Sprintf("output-%d.%s", quantity, extension)
 	path := fmt.Sprintf("assets/output/%s", fileName)
 
