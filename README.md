@@ -40,7 +40,7 @@ twitter # ⏎
 Enter the usecase of output images. [post / header]
 post # ⏎
 
-Enter the quantity of materials per output image. [10 / 144]\
+Enter the quantity of materials per output image. [10 / 144]
 10 # ⏎
 ```
 
