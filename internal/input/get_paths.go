@@ -48,7 +48,7 @@ func GetPaths(dir string, density int) ([]string, int, error) {
 	// 入力画像の不足分を取得する
 	outputQuant, addition := calc.GetOutputQuant(filesQuant, density)
 	for addition > 0 {
-		path := filepath.Join(dir, "default/soundtrackhub-icon.jpg")
+		path := filepath.Join(dir, "default/sample.jpg")
 		paths = append(paths, path)
 		addition--
 	}

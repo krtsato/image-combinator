@@ -102,19 +102,26 @@ func updateCliOptions(rawMap interface{}, options *CliOptions) error {
 	}
 
 	// 入力文字列が key となるマップが存在する場合
+	var inputParam interface{}
 	inputText := strings.ToLower(scanner.Text())
-	refKey := reflect.ValueOf(inputText)
+	if _, exist := refMap.Interface().(densityMapType); exist {
+		inputParam, _ = strconv.Atoi(inputText)
+	} else {
+		inputParam = inputText
+	}
+
+	refKey := reflect.ValueOf(inputParam)
 	refVal := refMap.MapIndex(refKey)
 	if exist := refVal.IsValid(); exist {
 		switch refVal.Interface().(type) {
 		case usecaseMapType:
-			options.Platform = inputText
+			options.Platform = inputParam.(string)
 			return nil
 		case screenMapType:
-			options.Usecase = inputText
+			options.Usecase = inputParam.(string)
 			return nil
 		case measureMapType:
-			options.Density, _ = strconv.Atoi(inputText)
+			options.Density = inputParam.(int)
 			return nil
 		default:
 			fmt.Println(refVal.Type())
